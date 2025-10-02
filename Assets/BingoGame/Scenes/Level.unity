@@ -21707,6 +21707,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4247b4dc85a0fd142b62c441ca114b69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerBingoParent: {fileID: 5576853}
+  bot1BingoParent: {fileID: 171783637}
+  bot2BingoParent: {fileID: 1404685879}
+  choiceButtons:
+  - {fileID: 1851316562}
+  - {fileID: 183547308}
+  - {fileID: 1071398418}
+  firstRotationObject: {fileID: 1568331311674772153}
+  secondRotationObject: {fileID: 4859588178710156099}
+  bottomPanel: {fileID: 583119633}
+  topPanel: {fileID: 431632708}
+  rotationDuration: 3
+  fadeDuration: 1
+  strikethroughColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1956253997
 GameObject:
   m_ObjectHideFlags: 0
