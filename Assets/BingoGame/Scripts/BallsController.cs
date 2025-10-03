@@ -52,6 +52,8 @@ public class BallsController : MonoBehaviour
         GenerateAllBingoCards();
         SetupChoiceButtons();
         StartGameSequence();
+        
+        // зробити анімації нормальні при виборі цифр + зробити показ шо карточка ігрока в центрі
     }
 
     void InitializeNumberPool()
