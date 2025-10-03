@@ -27,6 +27,18 @@ public class BallsController : MonoBehaviour
     [SerializeField] private RectTransform turnNotificationImage;
     [SerializeField] private TextMeshProUGUI turnNotificationText;
     
+    [Header("Race Camera")]
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Camera raceCamera;
+    [SerializeField] private CanvasGroup mainCanvasGroup;
+    
+    [Header("Race Settings")]
+    [SerializeField] private HorseRaceController horseRaceController;
+    [SerializeField] private float cameraFadeDuration = 1f;
+    [SerializeField] private float fovChangeDuration = 1.5f;
+    [SerializeField] private float startFOV = 70f;
+    [SerializeField] private float raceFOV = 30f;
+    
     [Header("Settings")]
     [SerializeField] private float rotationDuration = 1.5f;
     [SerializeField] private float fadeDuration = 0.8f;
@@ -59,6 +71,7 @@ public class BallsController : MonoBehaviour
     
     private int currentPlayer = 0;
     private bool canClick = false;
+    private bool isRaceMode = false;
     
     private Vector2 notificationHiddenPosition;
     private Vector2 notificationVisiblePosition;
@@ -70,6 +83,7 @@ public class BallsController : MonoBehaviour
         GenerateAllBingoCards();
         SetupChoiceButtons();
         InitializeTurnNotification();
+        InitializeRaceCamera();
         StartGameSequence();
     }
 
@@ -150,6 +164,14 @@ public class BallsController : MonoBehaviour
         turnNotificationImage.anchoredPosition = notificationHiddenPosition;
         turnNotificationPanel.alpha = 0;
         turnNotificationPanel.gameObject.SetActive(false);
+    }
+
+    void InitializeRaceCamera()
+    {
+        if (raceCamera != null)
+        {
+            raceCamera.gameObject.SetActive(false);
+        }
     }
 
     void StartGameSequence()
@@ -490,8 +512,11 @@ public class BallsController : MonoBehaviour
             CheckWin(bot2Marked, bot2Texts, bot2BingoParent, "Bot 2");
         }
         
-        currentPlayer = (currentPlayer + 1) % 3;
-        Invoke("StartNewRound", 0.3f);
+        if (!isRaceMode)
+        {
+            currentPlayer = (currentPlayer + 1) % 3;
+            Invoke("StartNewRound", 0.3f);
+        }
     }
 
     bool HasNumber(int[,] numbers, int targetNumber)
@@ -538,12 +563,14 @@ public class BallsController : MonoBehaviour
     void CheckWin(bool[,] marked, List<TextMeshProUGUI> texts, RectTransform cardParent, string playerName)
     {
         List<int> winningIndices = new List<int>();
+        int linesCompleted = 0;
         
         for (int i = 0; i < 5; i++)
         {
             if (marked[i, 0] && marked[i, 1] && marked[i, 2] && marked[i, 3] && marked[i, 4])
             {
                 Debug.Log($"{playerName} wins with horizontal line {i}!");
+                linesCompleted++;
                 for (int j = 0; j < 5; j++)
                 {
                     winningIndices.Add(i * 5 + j);
@@ -556,6 +583,7 @@ public class BallsController : MonoBehaviour
             if (marked[0, j] && marked[1, j] && marked[2, j] && marked[3, j] && marked[4, j])
             {
                 Debug.Log($"{playerName} wins with vertical line {j}!");
+                linesCompleted++;
                 for (int i = 0; i < 5; i++)
                 {
                     winningIndices.Add(i * 5 + j);
@@ -566,6 +594,7 @@ public class BallsController : MonoBehaviour
         if (marked[0, 0] && marked[1, 1] && marked[2, 2] && marked[3, 3] && marked[4, 4])
         {
             Debug.Log($"{playerName} wins with diagonal line!");
+            linesCompleted++;
             for (int i = 0; i < 5; i++)
             {
                 winningIndices.Add(i * 5 + i);
@@ -575,6 +604,7 @@ public class BallsController : MonoBehaviour
         if (marked[0, 4] && marked[1, 3] && marked[2, 2] && marked[3, 1] && marked[4, 0])
         {
             Debug.Log($"{playerName} wins with diagonal line!");
+            linesCompleted++;
             for (int i = 0; i < 5; i++)
             {
                 winningIndices.Add(i * 5 + (4 - i));
@@ -584,7 +614,77 @@ public class BallsController : MonoBehaviour
         if (winningIndices.Count > 0)
         {
             HighlightWinningLine(texts, winningIndices);
+            
+            if (linesCompleted > 0)
+            {
+                int winnerIndex = GetPlayerIndex(playerName);
+                StartRaceSequence(winnerIndex);
+            }
         }
+    }
+
+    int GetPlayerIndex(string playerName)
+    {
+        if (playerName == "Player") return 0;
+        if (playerName == "Bot 1") return 1;
+        if (playerName == "Bot 2") return 2;
+        return 0;
+    }
+
+    void StartRaceSequence(int winnerIndex)
+    {
+        if (isRaceMode) return;
+        
+        isRaceMode = true;
+        CancelInvoke("StartNewRound");
+        
+        Sequence raceSequence = DOTween.Sequence();
+        
+        raceSequence.Append(mainCanvasGroup.DOFade(0, cameraFadeDuration));
+        
+        raceSequence.AppendCallback(() =>
+        {
+            mainCanvasGroup.gameObject.SetActive(false);
+            mainCamera.gameObject.SetActive(false);
+            raceCamera.gameObject.SetActive(true);
+        });
+        
+        raceSequence.Append(DOVirtual.Float(0, 1, cameraFadeDuration, value => {}));
+        
+        raceSequence.Append(DOVirtual.Float(startFOV, raceFOV, fovChangeDuration, value => raceCamera.fieldOfView = value));
+        
+        raceSequence.AppendCallback(() =>
+        {
+            horseRaceController.MoveHorse(winnerIndex, () =>
+            {
+                ReturnToGame();
+            });
+        });
+    }
+
+    void ReturnToGame()
+    {
+        Sequence returnSequence = DOTween.Sequence();
+        
+        returnSequence.Append(DOVirtual.Float(raceFOV, startFOV, fovChangeDuration, value => raceCamera.fieldOfView = value));
+        
+        returnSequence.Append(DOVirtual.Float(0, 1, cameraFadeDuration, value => {}));
+        
+        returnSequence.AppendCallback(() =>
+        {
+            raceCamera.gameObject.SetActive(false);
+            mainCamera.gameObject.SetActive(true);
+            mainCanvasGroup.gameObject.SetActive(true);
+        });
+        
+        returnSequence.Append(mainCanvasGroup.DOFade(1, cameraFadeDuration));
+        
+        returnSequence.OnComplete(() =>
+        {
+            isRaceMode = false;
+            currentPlayer = (currentPlayer + 1) % 3;
+            Invoke("StartNewRound", 0.3f);
+        });
     }
 
     void HighlightWinningLine(List<TextMeshProUGUI> texts, List<int> indices)
