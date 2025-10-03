@@ -18866,8 +18866,10 @@ MonoBehaviour:
   playerHorse: {fileID: 3571592519609979569}
   bot1Horse: {fileID: 351364912745648765}
   bot2Horse: {fileID: 8444584762402701495}
-  distancePerLine: 5
-  horseSpeed: 3
+  distancePerLine: 15
+  horseSpeed: 5
+  finishLineX: 90
+  finishThreshold: 2
 --- !u!1 &1644204286
 GameObject:
   m_ObjectHideFlags: 0

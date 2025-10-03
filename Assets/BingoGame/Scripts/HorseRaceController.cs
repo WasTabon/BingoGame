@@ -11,10 +11,14 @@ public class HorseRaceController : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float distancePerLine = 5f;
     [SerializeField] private float horseSpeed = 3f;
+    [SerializeField] private float finishLineX = 90f;
+    [SerializeField] private float finishThreshold = 2f;
     
     private Animator playerAnimator;
     private Animator bot1Animator;
     private Animator bot2Animator;
+    
+    private bool raceFinished = false;
     
     void Start()
     {
@@ -27,33 +31,51 @@ public class HorseRaceController : MonoBehaviour
     {
         Transform horse = null;
         Animator animator = null;
+        string playerName = "";
         
         if (playerIndex == 0)
         {
             horse = playerHorse;
             animator = playerAnimator;
+            playerName = "Player";
         }
         else if (playerIndex == 1)
         {
             horse = bot1Horse;
             animator = bot1Animator;
+            playerName = "Bot 1";
         }
         else if (playerIndex == 2)
         {
             horse = bot2Horse;
             animator = bot2Animator;
+            playerName = "Bot 2";
         }
         
         if (horse != null && animator != null)
         {
+            Debug.Log($"[{playerName}] Starting move from X: {horse.position.x}");
+            
             animator.SetBool("isRunning", true);
             
             Vector3 targetPosition = horse.position + horse.forward * distancePerLine;
             float duration = distancePerLine / horseSpeed;
             
+            Debug.Log($"[{playerName}] Target position X: {targetPosition.x}");
+            
             horse.DOMove(targetPosition, duration).SetEase(Ease.Linear).OnComplete(() =>
             {
                 animator.SetBool("isRunning", false);
+                
+                float currentX = horse.position.x;
+                Debug.Log($"[{playerName}] Finished move at X: {currentX}, Finish line: {finishLineX}, Race finished: {raceFinished}");
+                
+                if (!raceFinished && currentX <= finishLineX)
+                {
+                    raceFinished = true;
+                    Debug.Log($"🏆 {playerName} wins the race! Position X: {currentX}");
+                }
+                
                 onComplete?.Invoke();
             });
         }
@@ -61,5 +83,11 @@ public class HorseRaceController : MonoBehaviour
         {
             onComplete?.Invoke();
         }
+    }
+    
+    public void ResetRace()
+    {
+        raceFinished = false;
+        Debug.Log("Race reset!");
     }
 }

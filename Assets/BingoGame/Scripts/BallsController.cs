@@ -307,9 +307,9 @@ public class BallsController : MonoBehaviour
     void GenerateChoices()
     {
         Sequence buttonSequence = DOTween.Sequence();
-    
+
         List<int> validChoices = new List<int>();
-    
+
         for (int i = 0; i < playerNumbers.GetLength(0); i++)
         {
             for (int j = 0; j < playerNumbers.GetLength(1); j++)
@@ -321,18 +321,18 @@ public class BallsController : MonoBehaviour
                 }
             }
         }
-    
+
         if (validChoices.Count > 0)
         {
             int guaranteedNumber = validChoices[Random.Range(0, validChoices.Count)];
             currentChoices[0] = guaranteedNumber;
-        
+    
             for (int i = 1; i < 3; i++)
             {
                 int randomIndex = Random.Range(0, availableNumbers.Count);
                 currentChoices[i] = availableNumbers[randomIndex];
             }
-        
+    
             for (int i = currentChoices.Length - 1; i > 0; i--)
             {
                 int j = Random.Range(0, i + 1);
@@ -349,7 +349,7 @@ public class BallsController : MonoBehaviour
                 currentChoices[i] = availableNumbers[randomIndex];
             }
         }
-    
+
         for (int i = 0; i < 3; i++)
         {
             TextMeshProUGUI buttonText = choiceButtons[i].GetComponentInChildren<TextMeshProUGUI>();
@@ -357,11 +357,11 @@ public class BallsController : MonoBehaviour
             {
                 buttonText.text = currentChoices[i].ToString();
             }
-        
+    
             RectTransform buttonRect = choiceButtons[i].GetComponent<RectTransform>();
             Vector2 originalPos = buttonRect.anchoredPosition;
             buttonRect.anchoredPosition = new Vector2(originalPos.x, originalPos.y + 200f);
-        
+    
             int index = i;
             buttonSequence.Insert(index * buttonStaggerDelay, 
                 buttonRect.DOAnchorPos(originalPos, 0.4f).SetEase(Ease.OutBounce));
