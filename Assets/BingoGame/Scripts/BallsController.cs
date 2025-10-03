@@ -285,22 +285,61 @@ public class BallsController : MonoBehaviour
     void GenerateChoices()
     {
         Sequence buttonSequence = DOTween.Sequence();
+    
+        List<int> validChoices = new List<int>();
+    
+        for (int i = 0; i < playerNumbers.GetLength(0); i++)
+        {
+            for (int j = 0; j < playerNumbers.GetLength(1); j++)
+            {
+                int number = playerNumbers[i, j];
+                if (!playerMarked[i, j] && availableNumbers.Contains(number))
+                {
+                    validChoices.Add(number);
+                }
+            }
+        }
+    
+        if (validChoices.Count > 0)
+        {
+            int guaranteedNumber = validChoices[Random.Range(0, validChoices.Count)];
+            currentChoices[0] = guaranteedNumber;
         
+            for (int i = 1; i < 3; i++)
+            {
+                int randomIndex = Random.Range(0, availableNumbers.Count);
+                currentChoices[i] = availableNumbers[randomIndex];
+            }
+        
+            for (int i = currentChoices.Length - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                int temp = currentChoices[i];
+                currentChoices[i] = currentChoices[j];
+                currentChoices[j] = temp;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                int randomIndex = Random.Range(0, availableNumbers.Count);
+                currentChoices[i] = availableNumbers[randomIndex];
+            }
+        }
+    
         for (int i = 0; i < 3; i++)
         {
-            int randomIndex = Random.Range(0, availableNumbers.Count);
-            currentChoices[i] = availableNumbers[randomIndex];
-            
             TextMeshProUGUI buttonText = choiceButtons[i].GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
             {
                 buttonText.text = currentChoices[i].ToString();
             }
-            
+        
             RectTransform buttonRect = choiceButtons[i].GetComponent<RectTransform>();
             Vector2 originalPos = buttonRect.anchoredPosition;
             buttonRect.anchoredPosition = new Vector2(originalPos.x, originalPos.y + 200f);
-            
+        
             int index = i;
             buttonSequence.Insert(index * buttonStaggerDelay, 
                 buttonRect.DOAnchorPos(originalPos, 0.4f).SetEase(Ease.OutBounce));
@@ -365,6 +404,72 @@ public class BallsController : MonoBehaviour
         });
     }
 
+    [ContextMenu("Simulate Player Win Line")]
+    void SimulatePlayerWinLine()
+    {
+        SimulateWinLineForPlayer(playerMarked, playerTexts, playerBingoParent, "Player");
+    }
+
+    [ContextMenu("Simulate Bot 1 Win Line")]
+    void SimulateBot1WinLine()
+    {
+        SimulateWinLineForPlayer(bot1Marked, bot1Texts, bot1BingoParent, "Bot 1");
+    }
+
+    [ContextMenu("Simulate Bot 2 Win Line")]
+    void SimulateBot2WinLine()
+    {
+        SimulateWinLineForPlayer(bot2Marked, bot2Texts, bot2BingoParent, "Bot 2");
+    }
+
+    void SimulateWinLineForPlayer(bool[,] marked, List<TextMeshProUGUI> texts, RectTransform cardParent, string playerName)
+    {
+        int lineToComplete = -1;
+    
+        for (int i = 0; i < 5; i++)
+        {
+            bool allMarked = true;
+            for (int j = 0; j < 5; j++)
+            {
+                if (!marked[i, j])
+                {
+                    allMarked = false;
+                    break;
+                }
+            }
+        
+            if (!allMarked)
+            {
+                lineToComplete = i;
+                break;
+            }
+        }
+    
+        if (lineToComplete != -1)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                if (!marked[lineToComplete, j])
+                {
+                    marked[lineToComplete, j] = true;
+                    int cellIndex = lineToComplete * 5 + j;
+                    if (cellIndex < texts.Count)
+                    {
+                        TextMeshProUGUI text = texts[cellIndex];
+                        Transform cellTransform = text.transform.parent;
+                    
+                        Sequence markSequence = DOTween.Sequence();
+                        markSequence.Append(cellTransform.DOPunchScale(Vector3.one * 0.3f, 0.4f, 8, 0.5f));
+                        markSequence.Join(cellTransform.DORotate(new Vector3(0, 0, 360), 0.5f, RotateMode.FastBeyond360));
+                        markSequence.Join(text.DOColor(strikethroughColor, cardFadeDuration));
+                    }
+                }
+            }
+        
+            DOVirtual.DelayedCall(0.6f, () => CheckWin(marked, texts, cardParent, playerName));
+        }
+    }
+    
     void ProcessChoice(int number, int playerIndex)
     {
         availableNumbers.Remove(number);
