@@ -28,13 +28,15 @@ public class BallsController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI turnNotificationText;
     
     [Header("Settings")]
-    [SerializeField] private float rotationDuration = 3f;
-    [SerializeField] private float fadeDuration = 1f;
-    [SerializeField] private float notificationDuration = 0.5f;
-    [SerializeField] private float cardFadeDuration = 0.5f;
+    [SerializeField] private float rotationDuration = 1.5f;
+    [SerializeField] private float fadeDuration = 0.8f;
+    [SerializeField] private float notificationDuration = 0.3f;
+    [SerializeField] private float cardFadeDuration = 0.3f;
+    [SerializeField] private float buttonStaggerDelay = 0.1f;
     [SerializeField] private Color strikethroughColor = Color.red;
     [SerializeField] private Color inactiveColor = new Color(0.5f, 0.5f, 0.5f, 1f);
     [SerializeField] private Color activeColor = Color.white;
+    [SerializeField] private Color highlightColor = Color.yellow;
     
     private int[,] playerNumbers = new int[5, 5];
     private int[,] bot1Numbers = new int[5, 5];
@@ -193,31 +195,39 @@ public class BallsController : MonoBehaviour
     {
         if (currentPlayer == 0)
         {
-            SetCardActive(playerImages, playerTexts, true);
-            SetCardActive(bot1Images, bot1Texts, false);
-            SetCardActive(bot2Images, bot2Texts, false);
+            SetCardActive(playerBingoParent, playerImages, playerTexts, true);
+            SetCardActive(bot1BingoParent, bot1Images, bot1Texts, false);
+            SetCardActive(bot2BingoParent, bot2Images, bot2Texts, false);
         }
         else if (currentPlayer == 1)
         {
-            SetCardActive(playerImages, playerTexts, false);
-            SetCardActive(bot1Images, bot1Texts, true);
-            SetCardActive(bot2Images, bot2Texts, false);
+            SetCardActive(playerBingoParent, playerImages, playerTexts, false);
+            SetCardActive(bot1BingoParent, bot1Images, bot1Texts, true);
+            SetCardActive(bot2BingoParent, bot2Images, bot2Texts, false);
         }
         else
         {
-            SetCardActive(playerImages, playerTexts, false);
-            SetCardActive(bot1Images, bot1Texts, false);
-            SetCardActive(bot2Images, bot2Texts, true);
+            SetCardActive(playerBingoParent, playerImages, playerTexts, false);
+            SetCardActive(bot1BingoParent, bot1Images, bot1Texts, false);
+            SetCardActive(bot2BingoParent, bot2Images, bot2Texts, true);
         }
     }
 
-    void SetCardActive(List<Image> images, List<TextMeshProUGUI> texts, bool isActive)
+    void SetCardActive(RectTransform card, List<Image> images, List<TextMeshProUGUI> texts, bool isActive)
     {
         Color targetColor = isActive ? activeColor : inactiveColor;
+        float targetScale = isActive ? 1.05f : 0.95f;
+        
+        card.DOScale(targetScale, cardFadeDuration).SetEase(Ease.OutBack);
         
         foreach (Image img in images)
         {
             img.DOColor(targetColor, cardFadeDuration);
+        }
+        
+        if (isActive)
+        {
+            card.DOShakeRotation(0.5f, 2f, 10, 90f).SetDelay(cardFadeDuration);
         }
     }
 
@@ -245,7 +255,7 @@ public class BallsController : MonoBehaviour
         sequence.Append(turnNotificationPanel.DOFade(1, notificationDuration));
         sequence.Join(turnNotificationImage.DOAnchorPos(notificationVisiblePosition, notificationDuration).SetEase(Ease.OutBack));
         
-        sequence.AppendInterval(1f);
+        sequence.AppendInterval(0.5f);
         
         sequence.Append(turnNotificationImage.DOAnchorPos(notificationHiddenPosition, notificationDuration).SetEase(Ease.InBack));
         sequence.Join(turnNotificationPanel.DOFade(0, notificationDuration));
@@ -268,12 +278,14 @@ public class BallsController : MonoBehaviour
         {
             canClick = false;
             EnableButtons(false);
-            Invoke("BotMakeChoice", 1f);
+            Invoke("BotMakeChoice", 0.8f);
         }
     }
 
     void GenerateChoices()
     {
+        Sequence buttonSequence = DOTween.Sequence();
+        
         for (int i = 0; i < 3; i++)
         {
             int randomIndex = Random.Range(0, availableNumbers.Count);
@@ -284,6 +296,14 @@ public class BallsController : MonoBehaviour
             {
                 buttonText.text = currentChoices[i].ToString();
             }
+            
+            RectTransform buttonRect = choiceButtons[i].GetComponent<RectTransform>();
+            Vector2 originalPos = buttonRect.anchoredPosition;
+            buttonRect.anchoredPosition = new Vector2(originalPos.x, originalPos.y + 200f);
+            
+            int index = i;
+            buttonSequence.Insert(index * buttonStaggerDelay, 
+                buttonRect.DOAnchorPos(originalPos, 0.4f).SetEase(Ease.OutBounce));
         }
     }
 
@@ -299,8 +319,16 @@ public class BallsController : MonoBehaviour
     {
         if (!canClick) return;
         
-        int chosenNumber = currentChoices[buttonIndex];
-        ProcessChoice(chosenNumber, 0);
+        canClick = false;
+        
+        RectTransform buttonRect = choiceButtons[buttonIndex].GetComponent<RectTransform>();
+        Sequence buttonAnim = DOTween.Sequence();
+        buttonAnim.Append(buttonRect.DOPunchScale(Vector3.one * 0.2f, 0.3f, 5, 0.5f));
+        buttonAnim.OnComplete(() =>
+        {
+            int chosenNumber = currentChoices[buttonIndex];
+            ProcessChoice(chosenNumber, 0);
+        });
     }
 
     void BotMakeChoice()
@@ -323,8 +351,18 @@ public class BallsController : MonoBehaviour
             bestChoice = Random.Range(0, 3);
         }
         
-        int chosenNumber = currentChoices[bestChoice];
-        ProcessChoice(chosenNumber, botIndex);
+        RectTransform buttonRect = choiceButtons[bestChoice].GetComponent<RectTransform>();
+        Image buttonImage = choiceButtons[bestChoice].GetComponent<Image>();
+        
+        Sequence botAnim = DOTween.Sequence();
+        botAnim.Append(buttonImage.DOColor(highlightColor, 0.2f));
+        botAnim.Append(buttonRect.DOPunchScale(Vector3.one * 0.15f, 0.3f, 5, 0.5f));
+        botAnim.Append(buttonImage.DOColor(Color.white, 0.2f));
+        botAnim.OnComplete(() =>
+        {
+            int chosenNumber = currentChoices[bestChoice];
+            ProcessChoice(chosenNumber, botIndex);
+        });
     }
 
     void ProcessChoice(int number, int playerIndex)
@@ -333,22 +371,22 @@ public class BallsController : MonoBehaviour
         
         if (playerIndex == 0)
         {
-            MarkNumber(playerNumbers, playerMarked, playerTexts, number);
-            CheckWin(playerMarked, "Player");
+            MarkNumber(playerNumbers, playerMarked, playerTexts, playerBingoParent, number);
+            CheckWin(playerMarked, playerTexts, playerBingoParent, "Player");
         }
         else if (playerIndex == 1)
         {
-            MarkNumber(bot1Numbers, bot1Marked, bot1Texts, number);
-            CheckWin(bot1Marked, "Bot 1");
+            MarkNumber(bot1Numbers, bot1Marked, bot1Texts, bot1BingoParent, number);
+            CheckWin(bot1Marked, bot1Texts, bot1BingoParent, "Bot 1");
         }
         else if (playerIndex == 2)
         {
-            MarkNumber(bot2Numbers, bot2Marked, bot2Texts, number);
-            CheckWin(bot2Marked, "Bot 2");
+            MarkNumber(bot2Numbers, bot2Marked, bot2Texts, bot2BingoParent, number);
+            CheckWin(bot2Marked, bot2Texts, bot2BingoParent, "Bot 2");
         }
         
         currentPlayer = (currentPlayer + 1) % 3;
-        Invoke("StartNewRound", 0.5f);
+        Invoke("StartNewRound", 0.3f);
     }
 
     bool HasNumber(int[,] numbers, int targetNumber)
@@ -366,7 +404,7 @@ public class BallsController : MonoBehaviour
         return false;
     }
 
-    void MarkNumber(int[,] numbers, bool[,] marked, List<TextMeshProUGUI> texts, int targetNumber)
+    void MarkNumber(int[,] numbers, bool[,] marked, List<TextMeshProUGUI> texts, RectTransform cardParent, int targetNumber)
     {
         for (int i = 0; i < 5; i++)
         {
@@ -378,7 +416,13 @@ public class BallsController : MonoBehaviour
                     int cellIndex = i * 5 + j;
                     if (cellIndex < texts.Count)
                     {
-                        texts[cellIndex].DOColor(strikethroughColor, cardFadeDuration);
+                        TextMeshProUGUI text = texts[cellIndex];
+                        Transform cellTransform = text.transform.parent;
+                        
+                        Sequence markSequence = DOTween.Sequence();
+                        markSequence.Append(cellTransform.DOPunchScale(Vector3.one * 0.3f, 0.4f, 8, 0.5f));
+                        markSequence.Join(cellTransform.DORotate(new Vector3(0, 0, 360), 0.5f, RotateMode.FastBeyond360));
+                        markSequence.Join(text.DOColor(strikethroughColor, cardFadeDuration));
                     }
                     return;
                 }
@@ -386,13 +430,19 @@ public class BallsController : MonoBehaviour
         }
     }
 
-    void CheckWin(bool[,] marked, string playerName)
+    void CheckWin(bool[,] marked, List<TextMeshProUGUI> texts, RectTransform cardParent, string playerName)
     {
+        List<int> winningIndices = new List<int>();
+        
         for (int i = 0; i < 5; i++)
         {
             if (marked[i, 0] && marked[i, 1] && marked[i, 2] && marked[i, 3] && marked[i, 4])
             {
                 Debug.Log($"{playerName} wins with horizontal line {i}!");
+                for (int j = 0; j < 5; j++)
+                {
+                    winningIndices.Add(i * 5 + j);
+                }
             }
         }
         
@@ -401,17 +451,46 @@ public class BallsController : MonoBehaviour
             if (marked[0, j] && marked[1, j] && marked[2, j] && marked[3, j] && marked[4, j])
             {
                 Debug.Log($"{playerName} wins with vertical line {j}!");
+                for (int i = 0; i < 5; i++)
+                {
+                    winningIndices.Add(i * 5 + j);
+                }
             }
         }
         
         if (marked[0, 0] && marked[1, 1] && marked[2, 2] && marked[3, 3] && marked[4, 4])
         {
             Debug.Log($"{playerName} wins with diagonal line!");
+            for (int i = 0; i < 5; i++)
+            {
+                winningIndices.Add(i * 5 + i);
+            }
         }
         
         if (marked[0, 4] && marked[1, 3] && marked[2, 2] && marked[3, 1] && marked[4, 0])
         {
             Debug.Log($"{playerName} wins with diagonal line!");
+            for (int i = 0; i < 5; i++)
+            {
+                winningIndices.Add(i * 5 + (4 - i));
+            }
+        }
+        
+        if (winningIndices.Count > 0)
+        {
+            HighlightWinningLine(texts, winningIndices);
+        }
+    }
+
+    void HighlightWinningLine(List<TextMeshProUGUI> texts, List<int> indices)
+    {
+        foreach (int index in indices)
+        {
+            if (index < texts.Count)
+            {
+                Transform cellTransform = texts[index].transform.parent;
+                cellTransform.DOPunchScale(Vector3.one * 0.5f, 0.6f, 10, 1f).SetLoops(3);
+            }
         }
     }
 }

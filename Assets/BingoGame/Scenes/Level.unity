@@ -21856,10 +21856,15 @@ MonoBehaviour:
   turnNotificationPanel: {fileID: 1939314894}
   turnNotificationImage: {fileID: 1934895033}
   turnNotificationText: {fileID: 130320744}
-  rotationDuration: 3
-  fadeDuration: 1
-  notificationDuration: 0.5
+  rotationDuration: 1.5
+  fadeDuration: 0.8
+  notificationDuration: 0.3
+  cardFadeDuration: 0.3
+  buttonStaggerDelay: 0.1
   strikethroughColor: {r: 1, g: 0, b: 0, a: 1}
+  inactiveColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  activeColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &1934895032
 GameObject:
   m_ObjectHideFlags: 0
