@@ -22,10 +22,19 @@ public class BallsController : MonoBehaviour
     [SerializeField] private CanvasGroup bottomPanel;
     [SerializeField] private CanvasGroup topPanel;
     
+    [Header("Turn Notification")]
+    [SerializeField] private CanvasGroup turnNotificationPanel;
+    [SerializeField] private RectTransform turnNotificationImage;
+    [SerializeField] private TextMeshProUGUI turnNotificationText;
+    
     [Header("Settings")]
     [SerializeField] private float rotationDuration = 3f;
     [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] private float notificationDuration = 0.5f;
+    [SerializeField] private float cardFadeDuration = 0.5f;
     [SerializeField] private Color strikethroughColor = Color.red;
+    [SerializeField] private Color inactiveColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+    [SerializeField] private Color activeColor = Color.white;
     
     private int[,] playerNumbers = new int[5, 5];
     private int[,] bot1Numbers = new int[5, 5];
@@ -39,21 +48,27 @@ public class BallsController : MonoBehaviour
     private List<TextMeshProUGUI> bot1Texts = new List<TextMeshProUGUI>();
     private List<TextMeshProUGUI> bot2Texts = new List<TextMeshProUGUI>();
     
+    private List<Image> playerImages = new List<Image>();
+    private List<Image> bot1Images = new List<Image>();
+    private List<Image> bot2Images = new List<Image>();
+    
     private List<int> availableNumbers = new List<int>();
     private int[] currentChoices = new int[3];
     
     private int currentPlayer = 0;
     private bool canClick = false;
+    
+    private Vector2 notificationHiddenPosition;
+    private Vector2 notificationVisiblePosition;
 
     void Start()
     {
         InitializeNumberPool();
-        CollectAllTexts();
+        CollectAllComponents();
         GenerateAllBingoCards();
         SetupChoiceButtons();
+        InitializeTurnNotification();
         StartGameSequence();
-        
-        // зробити анімації нормальні при виборі цифр + зробити показ шо карточка ігрока в центрі
     }
 
     void InitializeNumberPool()
@@ -65,15 +80,23 @@ public class BallsController : MonoBehaviour
         }
     }
 
-    void CollectAllTexts()
+    void CollectAllComponents()
     {
         TextMeshProUGUI[] playerTMPs = playerBingoParent.GetComponentsInChildren<TextMeshProUGUI>();
         TextMeshProUGUI[] bot1TMPs = bot1BingoParent.GetComponentsInChildren<TextMeshProUGUI>();
         TextMeshProUGUI[] bot2TMPs = bot2BingoParent.GetComponentsInChildren<TextMeshProUGUI>();
         
+        Image[] playerImgs = playerBingoParent.GetComponentsInChildren<Image>();
+        Image[] bot1Imgs = bot1BingoParent.GetComponentsInChildren<Image>();
+        Image[] bot2Imgs = bot2BingoParent.GetComponentsInChildren<Image>();
+        
         playerTexts.AddRange(playerTMPs);
         bot1Texts.AddRange(bot1TMPs);
         bot2Texts.AddRange(bot2TMPs);
+        
+        playerImages.AddRange(playerImgs);
+        bot1Images.AddRange(bot1Imgs);
+        bot2Images.AddRange(bot2Imgs);
     }
 
     void GenerateAllBingoCards()
@@ -117,6 +140,16 @@ public class BallsController : MonoBehaviour
         }
     }
 
+    void InitializeTurnNotification()
+    {
+        notificationVisiblePosition = turnNotificationImage.anchoredPosition;
+        notificationHiddenPosition = new Vector2(-Screen.width - turnNotificationImage.rect.width, notificationVisiblePosition.y);
+        
+        turnNotificationImage.anchoredPosition = notificationHiddenPosition;
+        turnNotificationPanel.alpha = 0;
+        turnNotificationPanel.gameObject.SetActive(false);
+    }
+
     void StartGameSequence()
     {
         bottomPanel.gameObject.SetActive(false);
@@ -152,7 +185,80 @@ public class BallsController : MonoBehaviour
         }
         
         GenerateChoices();
+        UpdateCardColors();
+        ShowTurnNotification();
+    }
+
+    void UpdateCardColors()
+    {
+        if (currentPlayer == 0)
+        {
+            SetCardActive(playerImages, playerTexts, true);
+            SetCardActive(bot1Images, bot1Texts, false);
+            SetCardActive(bot2Images, bot2Texts, false);
+        }
+        else if (currentPlayer == 1)
+        {
+            SetCardActive(playerImages, playerTexts, false);
+            SetCardActive(bot1Images, bot1Texts, true);
+            SetCardActive(bot2Images, bot2Texts, false);
+        }
+        else
+        {
+            SetCardActive(playerImages, playerTexts, false);
+            SetCardActive(bot1Images, bot1Texts, false);
+            SetCardActive(bot2Images, bot2Texts, true);
+        }
+    }
+
+    void SetCardActive(List<Image> images, List<TextMeshProUGUI> texts, bool isActive)
+    {
+        Color targetColor = isActive ? activeColor : inactiveColor;
         
+        foreach (Image img in images)
+        {
+            img.DOColor(targetColor, cardFadeDuration);
+        }
+    }
+
+    void ShowTurnNotification()
+    {
+        string turnText = "";
+        if (currentPlayer == 0)
+        {
+            turnText = "Your turn";
+        }
+        else if (currentPlayer == 1)
+        {
+            turnText = "Opponent's turn";
+        }
+        else
+        {
+            turnText = "Opponent 2's turn";
+        }
+        
+        turnNotificationText.text = turnText;
+        turnNotificationPanel.gameObject.SetActive(true);
+        
+        Sequence sequence = DOTween.Sequence();
+        
+        sequence.Append(turnNotificationPanel.DOFade(1, notificationDuration));
+        sequence.Join(turnNotificationImage.DOAnchorPos(notificationVisiblePosition, notificationDuration).SetEase(Ease.OutBack));
+        
+        sequence.AppendInterval(1f);
+        
+        sequence.Append(turnNotificationImage.DOAnchorPos(notificationHiddenPosition, notificationDuration).SetEase(Ease.InBack));
+        sequence.Join(turnNotificationPanel.DOFade(0, notificationDuration));
+        
+        sequence.OnComplete(() => 
+        {
+            turnNotificationPanel.gameObject.SetActive(false);
+            EnablePlayerTurn();
+        });
+    }
+
+    void EnablePlayerTurn()
+    {
         if (currentPlayer == 0)
         {
             canClick = true;
@@ -272,7 +378,7 @@ public class BallsController : MonoBehaviour
                     int cellIndex = i * 5 + j;
                     if (cellIndex < texts.Count)
                     {
-                        texts[cellIndex].color = strikethroughColor;
+                        texts[cellIndex].DOColor(strikethroughColor, cardFadeDuration);
                     }
                     return;
                 }
