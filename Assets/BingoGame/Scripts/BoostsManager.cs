@@ -43,6 +43,7 @@ public class BoostsManager : MonoBehaviour
         Debug.Log($"Boosts loaded - Lucky: {HasLuckyNumber}, Sprint: {HasSprintBoost}, Vision: {HasCardVision}");
     }
 
+    // Методи з return для коду
     public bool BuyLuckyNumber()
     {
         if (HasLuckyNumber)
@@ -107,5 +108,20 @@ public class BoostsManager : MonoBehaviour
 
         Debug.Log("Not enough coins for Card Vision");
         return false;
+    }
+    
+    public void TryBuyLuckyNumber()
+    {
+        BuyLuckyNumber();
+    }
+
+    public void TryBuySprintBoost()
+    {
+        BuySprintBoost();
+    }
+
+    public void TryBuyCardVision()
+    {
+        BuyCardVision();
     }
 }
