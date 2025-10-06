@@ -39,6 +39,10 @@ public class BallsController : MonoBehaviour
     [SerializeField] private float startFOV = 70f;
     [SerializeField] private float raceFOV = 30f;
     
+    [Header("Game Mode")]
+    [SerializeField] private bool twoPlayersOneBot = false;
+    [SerializeField] private bool threePlayers = false;
+    
     [Header("Settings")]
     [SerializeField] private float rotationDuration = 1.5f;
     [SerializeField] private float fadeDuration = 0.8f;
@@ -49,6 +53,9 @@ public class BallsController : MonoBehaviour
     [SerializeField] private Color inactiveColor = new Color(0.5f, 0.5f, 0.5f, 1f);
     [SerializeField] private Color activeColor = Color.white;
     [SerializeField] private Color highlightColor = Color.yellow;
+
+    private int totalPlayers = 3;
+    private int humanPlayers = 1;
     
     private int[,] playerNumbers = new int[5, 5];
     private int[,] bot1Numbers = new int[5, 5];
@@ -78,6 +85,7 @@ public class BallsController : MonoBehaviour
 
     void Start()
     {
+        DetermineGameMode();
         InitializeNumberPool();
         CollectAllComponents();
         GenerateAllBingoCards();
@@ -114,6 +122,28 @@ public class BallsController : MonoBehaviour
         bot1Images.AddRange(bot1Imgs);
         bot2Images.AddRange(bot2Imgs);
     }
+    
+    void DetermineGameMode()
+    {
+        if (threePlayers)
+        {
+            totalPlayers = 3;
+            humanPlayers = 3;
+        }
+        else if (twoPlayersOneBot)
+        {
+            totalPlayers = 3;
+            humanPlayers = 2;
+        }
+        else
+        {
+            totalPlayers = 3;
+            humanPlayers = 1;
+        }
+    
+        Debug.Log($"Game Mode: {humanPlayers} human player(s), {totalPlayers - humanPlayers} bot(s)");
+    }
+
 
     void GenerateAllBingoCards()
     {
@@ -256,32 +286,25 @@ public class BallsController : MonoBehaviour
     void ShowTurnNotification()
     {
         string turnText = "";
-        if (currentPlayer == 0)
+        if (currentPlayer < humanPlayers)
         {
-            turnText = "Your turn";
-        }
-        else if (currentPlayer == 1)
-        {
-            turnText = "Opponent's turn";
+            turnText = humanPlayers == 1 ? "Your turn" : $"Player {currentPlayer + 1}'s turn";
         }
         else
         {
-            turnText = "Opponent 2's turn";
+            int botNumber = currentPlayer - humanPlayers + 1;
+            turnText = totalPlayers - humanPlayers == 1 ? "Opponent's turn" : $"Opponent {botNumber}'s turn";
         }
-        
+    
         turnNotificationText.text = turnText;
         turnNotificationPanel.gameObject.SetActive(true);
-        
+    
         Sequence sequence = DOTween.Sequence();
-        
         sequence.Append(turnNotificationPanel.DOFade(1, notificationDuration));
         sequence.Join(turnNotificationImage.DOAnchorPos(notificationVisiblePosition, notificationDuration).SetEase(Ease.OutBack));
-        
         sequence.AppendInterval(0.5f);
-        
         sequence.Append(turnNotificationImage.DOAnchorPos(notificationHiddenPosition, notificationDuration).SetEase(Ease.InBack));
         sequence.Join(turnNotificationPanel.DOFade(0, notificationDuration));
-        
         sequence.OnComplete(() => 
         {
             turnNotificationPanel.gameObject.SetActive(false);
@@ -291,7 +314,7 @@ public class BallsController : MonoBehaviour
 
     void EnablePlayerTurn()
     {
-        if (currentPlayer == 0)
+        if (currentPlayer < humanPlayers)
         {
             canClick = true;
             EnableButtons(true);
@@ -305,68 +328,92 @@ public class BallsController : MonoBehaviour
     }
 
     void GenerateChoices()
+{
+    Sequence buttonSequence = DOTween.Sequence();
+
+    List<int> validChoices = new List<int>();
+    
+    // Визначаємо з якої карточки брати числа в залежності від поточного гравця
+    int[,] currentPlayerNumbers;
+    bool[,] currentPlayerMarked;
+    
+    if (currentPlayer == 0)
     {
-        Sequence buttonSequence = DOTween.Sequence();
-
-        List<int> validChoices = new List<int>();
-
-        for (int i = 0; i < playerNumbers.GetLength(0); i++)
+        currentPlayerNumbers = playerNumbers;
+        currentPlayerMarked = playerMarked;
+    }
+    else if (currentPlayer == 1)
+    {
+        currentPlayerNumbers = bot1Numbers;
+        currentPlayerMarked = bot1Marked;
+    }
+    else
+    {
+        currentPlayerNumbers = bot2Numbers;
+        currentPlayerMarked = bot2Marked;
+    }
+    
+    // Якщо це хід людини, додаємо гарантоване число з його карточки
+    if (currentPlayer < humanPlayers)
+    {
+        for (int i = 0; i < currentPlayerNumbers.GetLength(0); i++)
         {
-            for (int j = 0; j < playerNumbers.GetLength(1); j++)
+            for (int j = 0; j < currentPlayerNumbers.GetLength(1); j++)
             {
-                int number = playerNumbers[i, j];
-                if (!playerMarked[i, j] && availableNumbers.Contains(number))
+                int number = currentPlayerNumbers[i, j];
+                if (!currentPlayerMarked[i, j] && availableNumbers.Contains(number))
                 {
                     validChoices.Add(number);
                 }
             }
         }
+    }
 
-        if (validChoices.Count > 0)
+    if (validChoices.Count > 0 && currentPlayer < humanPlayers)
+    {
+        int guaranteedNumber = validChoices[Random.Range(0, validChoices.Count)];
+        currentChoices[0] = guaranteedNumber;
+    
+        for (int i = 1; i < 3; i++)
         {
-            int guaranteedNumber = validChoices[Random.Range(0, validChoices.Count)];
-            currentChoices[0] = guaranteedNumber;
-    
-            for (int i = 1; i < 3; i++)
-            {
-                int randomIndex = Random.Range(0, availableNumbers.Count);
-                currentChoices[i] = availableNumbers[randomIndex];
-            }
-    
-            for (int i = currentChoices.Length - 1; i > 0; i--)
-            {
-                int j = Random.Range(0, i + 1);
-                int temp = currentChoices[i];
-                currentChoices[i] = currentChoices[j];
-                currentChoices[j] = temp;
-            }
+            int randomIndex = Random.Range(0, availableNumbers.Count);
+            currentChoices[i] = availableNumbers[randomIndex];
         }
-        else
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                int randomIndex = Random.Range(0, availableNumbers.Count);
-                currentChoices[i] = availableNumbers[randomIndex];
-            }
-        }
-
-        for (int i = 0; i < 3; i++)
-        {
-            TextMeshProUGUI buttonText = choiceButtons[i].GetComponentInChildren<TextMeshProUGUI>();
-            if (buttonText != null)
-            {
-                buttonText.text = currentChoices[i].ToString();
-            }
     
-            RectTransform buttonRect = choiceButtons[i].GetComponent<RectTransform>();
-            Vector2 originalPos = buttonRect.anchoredPosition;
-            buttonRect.anchoredPosition = new Vector2(originalPos.x, originalPos.y + 200f);
-    
-            int index = i;
-            buttonSequence.Insert(index * buttonStaggerDelay, 
-                buttonRect.DOAnchorPos(originalPos, 0.4f).SetEase(Ease.OutBounce));
+        for (int i = currentChoices.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            int temp = currentChoices[i];
+            currentChoices[i] = currentChoices[j];
+            currentChoices[j] = temp;
         }
     }
+    else
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            int randomIndex = Random.Range(0, availableNumbers.Count);
+            currentChoices[i] = availableNumbers[randomIndex];
+        }
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        TextMeshProUGUI buttonText = choiceButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+        if (buttonText != null)
+        {
+            buttonText.text = currentChoices[i].ToString();
+        }
+    
+        RectTransform buttonRect = choiceButtons[i].GetComponent<RectTransform>();
+        Vector2 originalPos = buttonRect.anchoredPosition;
+        buttonRect.anchoredPosition = new Vector2(originalPos.x, originalPos.y + 200f);
+    
+        int index = i;
+        buttonSequence.Insert(index * buttonStaggerDelay, 
+            buttonRect.DOAnchorPos(originalPos, 0.4f).SetEase(Ease.OutBounce));
+    }
+}
 
     void EnableButtons(bool enabled)
     {
@@ -379,16 +426,16 @@ public class BallsController : MonoBehaviour
     void OnChoiceButtonClicked(int buttonIndex)
     {
         if (!canClick) return;
-        
+    
         canClick = false;
-        
+    
         RectTransform buttonRect = choiceButtons[buttonIndex].GetComponent<RectTransform>();
         Sequence buttonAnim = DOTween.Sequence();
         buttonAnim.Append(buttonRect.DOPunchScale(Vector3.one * 0.2f, 0.3f, 5, 0.5f));
         buttonAnim.OnComplete(() =>
         {
             int chosenNumber = currentChoices[buttonIndex];
-            ProcessChoice(chosenNumber, 0);
+            ProcessChoice(chosenNumber, currentPlayer); // Змінено з 0 на currentPlayer
         });
     }
 
@@ -495,26 +542,28 @@ public class BallsController : MonoBehaviour
     void ProcessChoice(int number, int playerIndex)
     {
         availableNumbers.Remove(number);
-        
+    
+        string playerName = playerIndex < humanPlayers ? $"Player {playerIndex + 1}" : $"Bot {playerIndex - humanPlayers + 1}";
+    
         if (playerIndex == 0)
         {
             MarkNumber(playerNumbers, playerMarked, playerTexts, playerBingoParent, number);
-            CheckWin(playerMarked, playerTexts, playerBingoParent, "Player");
+            CheckWin(playerMarked, playerTexts, playerBingoParent, playerName);
         }
         else if (playerIndex == 1)
         {
             MarkNumber(bot1Numbers, bot1Marked, bot1Texts, bot1BingoParent, number);
-            CheckWin(bot1Marked, bot1Texts, bot1BingoParent, "Bot 1");
+            CheckWin(bot1Marked, bot1Texts, bot1BingoParent, playerName);
         }
         else if (playerIndex == 2)
         {
             MarkNumber(bot2Numbers, bot2Marked, bot2Texts, bot2BingoParent, number);
-            CheckWin(bot2Marked, bot2Texts, bot2BingoParent, "Bot 2");
+            CheckWin(bot2Marked, bot2Texts, bot2BingoParent, playerName);
         }
-        
+    
         if (!isRaceMode)
         {
-            currentPlayer = (currentPlayer + 1) % 3;
+            currentPlayer = (currentPlayer + 1) % totalPlayers;
             Invoke("StartNewRound", 0.3f);
         }
     }
