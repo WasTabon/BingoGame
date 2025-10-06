@@ -333,7 +333,6 @@ public class BallsController : MonoBehaviour
 
     List<int> validChoices = new List<int>();
     
-    // Визначаємо з якої карточки брати числа в залежності від поточного гравця
     int[,] currentPlayerNumbers;
     bool[,] currentPlayerMarked;
     
@@ -353,7 +352,6 @@ public class BallsController : MonoBehaviour
         currentPlayerMarked = bot2Marked;
     }
     
-    // Якщо це хід людини, додаємо гарантоване число з його карточки
     if (currentPlayer < humanPlayers)
     {
         for (int i = 0; i < currentPlayerNumbers.GetLength(0); i++)
@@ -371,10 +369,17 @@ public class BallsController : MonoBehaviour
 
     if (validChoices.Count > 0 && currentPlayer < humanPlayers)
     {
-        int guaranteedNumber = validChoices[Random.Range(0, validChoices.Count)];
-        currentChoices[0] = guaranteedNumber;
-    
-        for (int i = 1; i < 3; i++)
+        int guaranteedCount = BoostsManager.Instance.HasLuckyNumber ? 2 : 1;
+        guaranteedCount = Mathf.Min(guaranteedCount, validChoices.Count);
+        
+        for (int i = 0; i < guaranteedCount; i++)
+        {
+            int randomValidIndex = Random.Range(0, validChoices.Count);
+            currentChoices[i] = validChoices[randomValidIndex];
+            validChoices.RemoveAt(randomValidIndex);
+        }
+        
+        for (int i = guaranteedCount; i < 3; i++)
         {
             int randomIndex = Random.Range(0, availableNumbers.Count);
             currentChoices[i] = availableNumbers[randomIndex];
@@ -403,6 +408,19 @@ public class BallsController : MonoBehaviour
         if (buttonText != null)
         {
             buttonText.text = currentChoices[i].ToString();
+            
+            if (BoostsManager.Instance.HasCardVision && currentPlayer < humanPlayers)
+            {
+                bool isInBotCard = CheckIfNumberInAnyBotCard(currentChoices[i]);
+                if (isInBotCard)
+                {
+                    buttonText.color = Color.yellow;
+                }
+                else
+                {
+                    buttonText.color = Color.white;
+                }
+            }
         }
     
         RectTransform buttonRect = choiceButtons[i].GetComponent<RectTransform>();
@@ -414,6 +432,28 @@ public class BallsController : MonoBehaviour
             buttonRect.DOAnchorPos(originalPos, 0.4f).SetEase(Ease.OutBounce));
     }
 }
+
+    bool CheckIfNumberInAnyBotCard(int number)
+    {
+        for (int botIndex = humanPlayers; botIndex < totalPlayers; botIndex++)
+        {
+            int[,] botNumbers = botIndex == 1 ? bot1Numbers : bot2Numbers;
+            bool[,] botMarked = botIndex == 1 ? bot1Marked : bot2Marked;
+        
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    if (botNumbers[i, j] == number && !botMarked[i, j])
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
 
     void EnableButtons(bool enabled)
     {

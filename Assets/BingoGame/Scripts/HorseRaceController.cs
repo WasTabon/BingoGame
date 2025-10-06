@@ -32,7 +32,7 @@ public class HorseRaceController : MonoBehaviour
         Transform horse = null;
         Animator animator = null;
         string playerName = "";
-        
+    
         if (playerIndex == 0)
         {
             horse = playerHorse;
@@ -51,31 +51,37 @@ public class HorseRaceController : MonoBehaviour
             animator = bot2Animator;
             playerName = "Bot 2";
         }
-        
+    
         if (horse != null && animator != null)
         {
             Debug.Log($"[{playerName}] Starting move from X: {horse.position.x}");
-            
+        
             animator.SetBool("isRunning", true);
-            
-            Vector3 targetPosition = horse.position + horse.forward * distancePerLine;
-            float duration = distancePerLine / horseSpeed;
-            
-            Debug.Log($"[{playerName}] Target position X: {targetPosition.x}");
-            
+        
+            float distance = distancePerLine;
+            if (BoostsManager.Instance.HasSprintBoost)
+            {
+                distance *= BoostsManager.Instance.sprintMultiplier;
+            }
+        
+            Vector3 targetPosition = horse.position + horse.forward * distance;
+            float duration = distance / horseSpeed;
+        
+            Debug.Log($"[{playerName}] Target position X: {targetPosition.x}, Distance: {distance}");
+        
             horse.DOMove(targetPosition, duration).SetEase(Ease.Linear).OnComplete(() =>
             {
                 animator.SetBool("isRunning", false);
-                
+            
                 float currentX = horse.position.x;
                 Debug.Log($"[{playerName}] Finished move at X: {currentX}, Finish line: {finishLineX}, Race finished: {raceFinished}");
-                
+            
                 if (!raceFinished && currentX <= finishLineX)
                 {
                     raceFinished = true;
                     Debug.Log($"🏆 {playerName} wins the race! Position X: {currentX}");
                 }
-                
+            
                 onComplete?.Invoke();
             });
         }
