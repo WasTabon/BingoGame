@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/BingoGame/Scenes/Levels.unity
+    guid: 556740ce38ea82a44a6122b0c2c38d00
+  - enabled: 1
+    path: Assets/BingoGame/Scenes/Level 1.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}

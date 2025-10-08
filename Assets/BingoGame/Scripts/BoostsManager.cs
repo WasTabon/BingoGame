@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class BoostsManager : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class BoostsManager : MonoBehaviour
     [Header("Boost Settings")]
     public int boostPrice = 50;
     public float sprintMultiplier = 1.2f;
+
+    [Header("UI Text References")]
+    public TextMeshProUGUI luckyNumberButtonText;
+    public TextMeshProUGUI sprintBoostButtonText;
+    public TextMeshProUGUI cardVisionButtonText;
 
     private const string LUCKY_NUMBER_KEY = "boost_lucky_number";
     private const string SPRINT_BOOST_KEY = "boost_sprint";
@@ -32,6 +38,7 @@ public class BoostsManager : MonoBehaviour
     void Start()
     {
         LoadBoosts();
+        UpdateAllButtonTexts();
     }
 
     void LoadBoosts()
@@ -43,7 +50,21 @@ public class BoostsManager : MonoBehaviour
         Debug.Log($"Boosts loaded - Lucky: {HasLuckyNumber}, Sprint: {HasSprintBoost}, Vision: {HasCardVision}");
     }
 
-    // Методи з return для коду
+    void UpdateAllButtonTexts()
+    {
+        UpdateButtonText(luckyNumberButtonText, HasLuckyNumber);
+        UpdateButtonText(sprintBoostButtonText, HasSprintBoost);
+        UpdateButtonText(cardVisionButtonText, HasCardVision);
+    }
+
+    void UpdateButtonText(TextMeshProUGUI buttonText, bool isPurchased)
+    {
+        if (buttonText != null)
+        {
+            buttonText.text = isPurchased ? "Purchased" : boostPrice.ToString();
+        }
+    }
+
     public bool BuyLuckyNumber()
     {
         if (HasLuckyNumber)
@@ -58,6 +79,7 @@ public class BoostsManager : MonoBehaviour
             HasLuckyNumber = true;
             PlayerPrefs.SetInt(LUCKY_NUMBER_KEY, 1);
             PlayerPrefs.Save();
+            UpdateButtonText(luckyNumberButtonText, true);
             Debug.Log("Lucky Number purchased!");
             return true;
         }
@@ -80,6 +102,7 @@ public class BoostsManager : MonoBehaviour
             HasSprintBoost = true;
             PlayerPrefs.SetInt(SPRINT_BOOST_KEY, 1);
             PlayerPrefs.Save();
+            UpdateButtonText(sprintBoostButtonText, true);
             Debug.Log("Sprint Boost purchased!");
             return true;
         }
@@ -102,6 +125,7 @@ public class BoostsManager : MonoBehaviour
             HasCardVision = true;
             PlayerPrefs.SetInt(CARD_VISION_KEY, 1);
             PlayerPrefs.Save();
+            UpdateButtonText(cardVisionButtonText, true);
             Debug.Log("Card Vision purchased!");
             return true;
         }
