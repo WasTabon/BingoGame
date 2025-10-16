@@ -255,6 +255,88 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 67687095}
   m_CullTransparentMesh: 1
+--- !u!1 &161929051
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 161929052}
+  - component: {fileID: 161929053}
+  m_Layer: 0
+  m_Name: TutorialController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &161929052
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161929051}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 762513994}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &161929053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161929051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6038e2c774a251409d00394c759b24e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialPanel: {fileID: 224458413}
+  tutorialText: {fileID: 224458415}
+  nextButton: {fileID: 224458414}
+  nextButtonText: {fileID: 224458416}
+  tutorialSteps:
+  - stepText: Welcome to the game. In this game, your goal is to win horse races
+      using Bingo.
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: Each turn, three numbers appear for every player. If you pick a number
+      that is on your card, it gets marked.
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: If the number is not on your card, it simply disappears.
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: Once a number is chosen, it will not appear again.
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: "This can be useful to block your opponent - if you pick a number they
+      have but you don\u2019t, you make their game harder."
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: When any player completes a line, whether vertical, horizontal, or
+      diagonal, the game switches to the race track.
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: "For every completed line, that player\u2019s horse moves forward by
+      a fixed distance."
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: The first horse to reach the finish line wins the race.
+    objectsToActivate: []
+    objectsToDeactivate: []
+  - stepText: You can also visit the shop to get power-ups and boosters that will
+      help you win. Good luck.
+    objectsToActivate: []
+    objectsToDeactivate: []
 --- !u!1 &175677771
 GameObject:
   m_ObjectHideFlags: 0
@@ -975,6 +1057,224 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217752851}
   m_CullTransparentMesh: 1
+--- !u!1001 &224458411
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1501863427}
+    m_Modifications:
+    - target: {fileID: 1249512970952906757, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1249512970952906757, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3f90668a8b1b08647813be0fde79d8ea, type: 3}
+    - target: {fileID: 1629636903640948074, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 1bff790d97cb0854686aac5d4fa9e736, type: 2}
+    - target: {fileID: 1629636903640948074, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -4493988611482371240, guid: 1bff790d97cb0854686aac5d4fa9e736, type: 2}
+    - target: {fileID: 1629636903640948074, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3086034643557558381, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 844
+      objectReference: {fileID: 0}
+    - target: {fileID: 3086034643557558381, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3487282072216702548, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3487282072216702548, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 0350e99ece4514447925ad09d0fdb323, type: 3}
+    - target: {fileID: 4386888208490337060, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4386888208490337060, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: d55240f495e0e384dabbf4fd1482ff6c, type: 3}
+    - target: {fileID: 5710218145629979434, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_Name
+      value: TutorialPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710218145629979434, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_text
+      value: Welcome to the game. In this game, your goal is to win horse races using
+        Bingo.
+      objectReference: {fileID: 0}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_fontSize
+      value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 1bff790d97cb0854686aac5d4fa9e736, type: 2}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_fontStyle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -4493988611482371240, guid: 1bff790d97cb0854686aac5d4fa9e736, type: 2}
+    - target: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: 2395944477604651069, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+--- !u!224 &224458412 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1938343125336889134, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+  m_PrefabInstance: {fileID: 224458411}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &224458413 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5710218145629979434, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+  m_PrefabInstance: {fileID: 224458411}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &224458414 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2454533119435705901, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+  m_PrefabInstance: {fileID: 224458411}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &224458415 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7157013633834799422, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+  m_PrefabInstance: {fileID: 224458411}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &224458416 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1629636903640948074, guid: bdc425bb53608f847890f55c857e1e30, type: 3}
+  m_PrefabInstance: {fileID: 224458411}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &275496712
 GameObject:
   m_ObjectHideFlags: 0
@@ -2532,6 +2832,7 @@ Transform:
   - {fileID: 1868013326}
   - {fileID: 522769425}
   - {fileID: 188984482}
+  - {fileID: 161929052}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &860954808
@@ -4901,6 +5202,7 @@ RectTransform:
   - {fileID: 681122348}
   - {fileID: 1851514323}
   - {fileID: 755002683}
+  - {fileID: 224458412}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
