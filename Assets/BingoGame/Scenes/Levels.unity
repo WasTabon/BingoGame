@@ -429,7 +429,7 @@ MonoBehaviour:
   _soundButtonIconOff: {fileID: 0}
   _audioSourceMusic: {fileID: 188984484}
   _audioSourceSound: {fileID: 1643707706}
-  _uiClickSound: {fileID: 0}
+  _uiClickSound: {fileID: 8300000, guid: a7f1a3b3bc333de458c897a52414bdba, type: 3}
 --- !u!82 &188984484
 AudioSource:
   m_ObjectHideFlags: 0
@@ -440,7 +440,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: cfd37198ae49bd445992bd8ecad0db33, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.3
   m_Pitch: 1
@@ -1874,7 +1874,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _donateId: com.binglo.mainpack
   loadingButton: {fileID: 1164294409}
-  buySound: {fileID: 0}
+  buySound: {fileID: 8300000, guid: ba723b2a822aec44285777d812fabbfc, type: 3}
   buttonText: {fileID: 299256698}
   panel: {fileID: 1514188982}
 --- !u!1 &567688580
@@ -5329,7 +5329,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: YOU GOT <sprite name="money">
+  m_text: YOU GOT 50<sprite name="money">
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1bff790d97cb0854686aac5d4fa9e736, type: 2}
   m_sharedMaterial: {fileID: -4493988611482371240, guid: 1bff790d97cb0854686aac5d4fa9e736, type: 2}
