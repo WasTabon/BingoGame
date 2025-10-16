@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class BallsController : MonoBehaviour
 {
@@ -121,6 +122,11 @@ public class BallsController : MonoBehaviour
         playerImages.AddRange(playerImgs);
         bot1Images.AddRange(bot1Imgs);
         bot2Images.AddRange(bot2Imgs);
+    }
+
+    public void LoadLevels()
+    {
+        SceneManager.LoadScene("Levels");
     }
     
     void DetermineGameMode()

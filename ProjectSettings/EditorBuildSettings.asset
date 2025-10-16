@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/BingoGame/Scenes/Level 1.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/BingoGame/Scenes/Level 2.unity
+    guid: c6cdde42ed0ec1a4e819a9066e9993d9
+  - enabled: 1
+    path: Assets/BingoGame/Scenes/Level 3.unity
+    guid: 848b0f35aa262c947a82021d55f69ce2
   m_configObjects: {}

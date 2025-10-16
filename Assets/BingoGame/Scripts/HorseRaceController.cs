@@ -3,6 +3,9 @@ using DG.Tweening;
 
 public class HorseRaceController : MonoBehaviour
 {
+    public GameObject playerWinPanel;
+    public GameObject botWinPanel;
+    
     [Header("Horses")]
     [SerializeField] private Transform playerHorse;
     [SerializeField] private Transform bot1Horse;
@@ -80,6 +83,15 @@ public class HorseRaceController : MonoBehaviour
                 {
                     raceFinished = true;
                     Debug.Log($"🏆 {playerName} wins the race! Position X: {currentX}");
+                    
+                    if (playerIndex == 0)
+                    {
+                        ShowPlayerWinPanel();
+                    }
+                    else
+                    {
+                        ShowBotWinPanel();
+                    }
                 }
             
                 onComplete?.Invoke();
@@ -91,9 +103,46 @@ public class HorseRaceController : MonoBehaviour
         }
     }
     
+    private void ShowPlayerWinPanel()
+    {
+        if (playerWinPanel != null)
+        {
+            playerWinPanel.SetActive(true);
+        }
+        
+        if (botWinPanel != null)
+        {
+            botWinPanel.SetActive(false);
+        }
+    }
+    
+    private void ShowBotWinPanel()
+    {
+        if (botWinPanel != null)
+        {
+            botWinPanel.SetActive(true);
+        }
+        
+        if (playerWinPanel != null)
+        {
+            playerWinPanel.SetActive(false);
+        }
+    }
+    
     public void ResetRace()
     {
         raceFinished = false;
+        
+        if (playerWinPanel != null)
+        {
+            playerWinPanel.SetActive(false);
+        }
+        
+        if (botWinPanel != null)
+        {
+            botWinPanel.SetActive(false);
+        }
+        
         Debug.Log("Race reset!");
     }
 }
