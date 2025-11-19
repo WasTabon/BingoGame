@@ -8,6 +8,7 @@ public class BottomGridLayout : MonoBehaviour
     [SerializeField] private int columns = 3;
     [SerializeField] private float spacing = 100f;
     [SerializeField] private float additionalPadding = 20f;
+    [SerializeField] private float bottomPadding = 50f;
 
     void Start()
     {
@@ -53,5 +54,6 @@ public class BottomGridLayout : MonoBehaviour
         
         gridLayout.padding.left = (int)leftOffset;
         gridLayout.padding.right = (int)rightOffset;
+        gridLayout.padding.bottom = (int)bottomPadding;
     }
 }
